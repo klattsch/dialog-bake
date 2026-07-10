@@ -3,6 +3,10 @@
 //
 //   node bake.mjs dialog.csv out/
 //
+// With --schedules, also write <id>.schedule.json next to each WAV (the
+// compiled event list { atMs, target, transitionMs } with formants, F0, and
+// amplitude), which lets you drive lip sync etc. in time with the audio.
+//
 // CSV columns: id, voice, mode, text
 //   id     output filename (id.wav)
 //   voice  directive prefix applied to the line, e.g. "b140 r220" (may be empty)
@@ -17,9 +21,11 @@ import { textToPhonemes, hasWord } from 'klattsch/pronounce';
 
 const SAMPLE_RATE = 48000;
 
-const [, , csvPath, outDir = 'out'] = process.argv;
+const args = process.argv.slice(2);
+const writeSchedules = args.includes('--schedules');
+const [csvPath, outDir = 'out'] = args.filter(a => a !== '--schedules');
 if (!csvPath) {
-  console.error('usage: node bake.mjs <dialog.csv> [outdir]');
+  console.error('usage: node bake.mjs [--schedules] <dialog.csv> [outdir]');
   process.exit(1);
 }
 
@@ -78,7 +84,7 @@ function renderLine(phonemeString) {
     const n = Math.min(buf.length, vb.length);
     for (let i = 0; i < n; i++) buf[i] += vb[i];
   }
-  return { buf, totalMs, warnings };
+  return { buf, totalMs, warnings, voices };
 }
 
 const rows = parseCsv(readFileSync(csvPath, 'utf8'));
@@ -102,13 +108,19 @@ for (const row of rows) {
   const text = row[col.text].trim();
   try {
     const phonemeString = [voice, toPhonemeString(mode, text)].filter(Boolean).join(' ');
-    const { buf, totalMs, warnings } = renderLine(phonemeString);
+    const { buf, totalMs, warnings, voices } = renderLine(phonemeString);
     if (warnings.length) console.error(`${id}: ${warnings.join(', ')}`);
     const { bytes } = encodeWav(buf, SAMPLE_RATE, {
       metadata: { software: 'klattsch dialog-bake', comment: phonemeString },
     });
     const outPath = join(outDir, `${id}.wav`);
     writeFileSync(outPath, bytes);
+    if (writeSchedules) {
+      // keep only what animation needs
+      const lean = voices.map(v => ({ totalMs: v.totalMs, schedule: v.schedule }));
+      writeFileSync(join(outDir, `${id}.schedule.json`),
+        JSON.stringify({ totalMs, voices: lean }));
+    }
     console.log(`${outPath}  ${(totalMs / 1000).toFixed(2)}s`);
   } catch (err) {
     failed++;

@@ -47,6 +47,19 @@ Directive cheat sheet: `b` base pitch (Hz or note name like `bC3`), `r` rate
 [klattsch README](https://github.com/tgies/klattsch) and the syntax help at
 [klatts.ch/play](https://klatts.ch/play/).
 
+## Lip sync data
+
+```bash
+node bake.mjs --schedules dialog.csv out/
+```
+
+also writes `<id>.schedule.json` next to each WAV. Each event is
+`{ atMs, target, transitionMs }`; `target` contains formant frequencies
+(`F1`-`F3`), amplitudes, `F0`, and `voicing`. Interpolate between events at your
+frame rate to derive mouth openness from amplitude, jaw and rounding hints from
+`F1`/`F2`, and pitch. The talking faces in the
+[klattsch app](https://klatts.ch/)'s video exports use these schedules.
+
 ## License
 
 MIT. If you ship baked lines in your game, no attribution is required for the

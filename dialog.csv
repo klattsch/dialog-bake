@@ -1,0 +1,9 @@
+id,voice,mode,text
+guard_halt,b95 r180,english,halt who goes there
+guard_pass,b95 r180,english,you may pass traveler
+shop_welcome,b160 r240,english,welcome to my shop
+shop_thanks,b160 r240,english,thank you come again
+robot_boot,b110,phonemes,S IH S T AH M . AA N L AY N
+robot_error,b110,phonemes,EH+20 R ER . EH-20 R ER . EH R ER
+ghost_moan,b80 r400 v6 w2,phonemes,OW UW OW UW
+choir_stinger,,phonemes,bC3 AA r400 AA AA [voice=1] bC4 IY r400 IY IY [voice=2] bG4 OW r400 OW OW

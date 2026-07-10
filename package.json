@@ -1,0 +1,15 @@
+{
+  "name": "klattsch-dialog-bake",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Bake a CSV of dialog lines into WAV files with the klattsch speech synthesizer.",
+  "type": "module",
+  "scripts": {
+    "bake": "node bake.mjs dialog.csv out"
+  },
+  "author": "Tony Gies <tgies@tgies.net> (https://github.com/tgies)",
+  "license": "MIT",
+  "dependencies": {
+    "klattsch": "^0.7.0"
+  }
+}
